@@ -1,0 +1,35 @@
+<head>
+  <style>
+    body {
+      margin: 0px;
+    }
+    
+    main {
+      background-color:rgb(129,113,114);
+      color: white;
+     /*  height: auto; */
+    }
+  
+    .hellos {
+      height: 97px;
+    }
+    
+  
+  </style>
+  
+  <script type="module">
+      import confetti from 'https://cdn.skypack.dev/canvas-confetti';
+      confetti()
+      let content = new Array(34)
+        .fill(`<div class="hellos">hello leo</div>`)
+        .join("")
+      let container = document.querySelector(".more-names")
+      container.innerHTML = content
+  </script>
+</head>
+
+<body>
+  <main>
+    <div class="more-names"></div>
+  </main>
+</body>

@@ -1,0 +1,25 @@
+<style>
+  main {
+    background-color:rgb(121,113,114);
+    color: white;
+   /*  height: auto; */
+  }
+
+  .hellos {
+    height: 97px;
+  }
+  
+
+</style>
+
+<script type="module">
+    let content = new Array(34)
+      .fill(`<div class="hellos">hello leo</div>`)
+      .join("")
+    let container = document.querySelector(".more-names")
+    container.innerHTML = content
+</script>
+
+<main>
+  <div class="more-names"></div>
+</main>

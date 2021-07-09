@@ -1,0 +1,19 @@
+<style>
+  #root {
+    margin: 82px;
+    padding: 28px;
+    background-color:rgb(156,210,170);
+    color: white;
+    text-align: center;
+  }
+</style>
+<script>
+  import('https://cdn.skypack.dev/canvas-confetti')
+    .then(({default: confetti}) => {
+      confetti()
+    })
+  
+  const r = document.getElementById("root");
+  r.innerHTML = 30;
+</script>
+<div id="root">hello world!</div>

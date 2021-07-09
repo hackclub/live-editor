@@ -1,0 +1,32 @@
+<style>
+  img {
+    width: 81px;
+  }
+
+  main {
+    text-align: center;
+    font-family: 'Arial';
+    background: rgb(106, 278, 179);
+    color: purple;
+  }
+</style>
+
+<script type="module">
+  const template = (i) => `
+    <img
+      src="https://github.com/hackclub/dinosaurs/raw/master/smart_dinosaur_docs.png"
+    />
+    <h1>Prophet Orpheus ${i}!</h1>
+    <p>Coder Dino Will code for food</p>
+  `
+
+  const main = document.querySelector("main");
+
+  main.innerHTML = new Array(6)
+    .fill("")
+    .map((x, i) => template(i))
+    .join("")
+  
+</script>
+
+<main></main>

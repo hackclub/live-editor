@@ -1,0 +1,23 @@
+<style>
+  .main {
+    width: 100%;
+    height: 100vh;
+    background: rgb(42,76,22);
+    display: grid;
+    place-content: center;
+  }
+  
+  .hello {
+    color: white;
+  }
+</style>
+
+<script>
+  const yourName = "Leo";
+  const r = document.querySelector(".hello");
+  r.innerHTML = `Hello ${yourName}!`;
+</script>
+
+<div class="main">
+  <span class="hello">hello world!</span>
+</div>

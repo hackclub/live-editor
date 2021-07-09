@@ -1,0 +1,164 @@
+:root {
+  --vertical-bar: 60%;
+  --background-color: #8686868c;
+}
+
+html,
+body {
+	font-family: system-ui;
+	font-size: 12pt;
+	margin: 0px;
+	overscroll-behavior: none; /*this stops the back swipe*/
+/*	overflow: hidden;*/
+}
+
+.no-select {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+/* ///////////////////////////////////////////////////// */
+/* GENERAL SET-UP */
+/* ///////////////////////////////////////////////////// */
+
+#root {
+  display: grid;
+  width: 100vw;
+  height: 100vh;
+  grid-template:
+    ". ." 100%
+    / var(--vertical-bar) 1fr;
+}
+
+.left-pane {
+  display: grid;
+  overflow: hidden;
+  background: #f4e6d0;
+  grid-template:
+    "." 1fr
+    "." 30px
+    / 100%;
+}
+
+#code-editor {
+	overflow: scroll;
+}
+
+.menu {
+  /*overflow: hidden;*/
+  width: 100%;
+  height: 100%;
+  background: grey;
+  display: grid;
+  grid-template:
+    ". . . . ." 100%
+    / auto auto auto auto auto;
+}
+
+.menu-button {
+  height: 100%;
+}
+
+.viewer-div {
+  all: initial;
+  overflow: scroll;
+  /*font-family: auto;*/
+  /*font-size: initial;*/
+  /*margin: default;*/
+}
+
+.viewer-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  margin: 0px;
+}
+
+#vertical-bar {
+  position: absolute;
+  left: calc( var(--vertical-bar) - 5px);
+  top: 0px;
+  background: none;
+  width: 10px;
+  height: 100%;
+  z-index: 10;
+}
+
+#vertical-bar:hover {
+  cursor: col-resize;
+  background: grey;
+}
+
+.CodeMirror {
+	height: 100% !important;
+	background: #f4e6d0 !important; /* #ebd5b3 */
+	z-index: 0;
+}
+
+.ͼc {
+  border: solid 1px rgb(0, 0, 0, 0);
+}
+
+.ͼc:hover {
+  background: #e4e0e0;
+  border: solid 1px grey;
+  box-sizing: border-box;
+  cursor: col-resize;
+}
+
+/* menu */
+
+.menu-choice {
+  width: 100%;
+  display: grid;
+  place-content: center;
+  font: 400 13.3333px Arial;
+  border: solid 2px #7b7770;
+  border-radius: 5px;
+  text-align: center;
+  border-radius: 2px;
+  background: rgb(239, 239, 239);
+  border: rgb(118, 118, 118) 0.1px solid;
+}
+
+.menu-choice-trigger {
+  position: relative;
+}
+
+.menu-choices {
+  position: absolute;
+  z-index: 100;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  visibility: hidden; /* hidden | visible */
+  width: 100%;
+  display: block;
+}
+
+.menu-choices .menu-choice {
+  width: 99%;
+  height: 28px;
+}
+
+.menu-choice-trigger:hover .menu-choices {
+  visibility: visible;
+}
+
+.menu-choice:hover {
+  background: rgb(229 225 225);
+  border: rgb(74, 74, 74) 1px solid;
+  cursor: default;
+}
+
+.selected-menu-choice:hover,
+.selected-menu-choice {
+  border: 2px solid blue;
+}
+
+

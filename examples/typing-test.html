@@ -1,0 +1,548 @@
+<style>
+:root {
+--nav-color: #f7f7f7;
+}
+.hackclub-logo {
+position: absolute;
+top: 0;
+}
+.github-logo {
+margin-left: 56px;
+}
+.github-logo:hover,
+.github-logo:focus {
+fill: gray;
+}
+.spacer {
+width: 106px;
+height: 50px;
+}
+.nav-text {
+font-size: 1.5em;
+}
+.navbar {
+background-color: var(--nav-color);
+}
+.intro {
+text-align: center;
+margin-top: 30px;
+margin-bottom: 40px;
+}
+.intro-text {
+margin-top: 20px;
+font-size: x-large;
+}
+.main {
+border-radius: 20px;
+background-color: var(--nav-color);
+padding: 20px;
+box-shadow: 5px 10px 18px #888888;
+display: block;
+}
+.char {
+padding: 0px 1px;
+font-size: x-large;
+}
+.space {
+padding: 0px 4px;
+}
+.results-container {
+text-align: center;
+display: none;
+}
+.results-list {
+border-radius: 20px;
+width: 220px;
+padding: 0;
+box-shadow: 5px 10px 18px #888888;
+margin-right: 20px;
+}
+.results-list > li {
+border: 2px solid black;
+background-color: var(--nav-color);
+}
+.leaderboard-list {
+border-radius: 20px;
+width: 220px;
+padding: 0;
+box-shadow: 5px 10px 18px #888888;
+margin-left: 20px;
+border: 1px solid black;
+}
+.leaderboard-list > li {
+border: 1px solid black;
+background-color: var(--nav-color);
+}
+.leaderboard-header {
+border-bottom: 2px solid black !important;
+}
+.dropdown-button {
+padding: 0;
+}
+.dropdown-button:focus,
+.dropdown-button:active {
+box-shadow: none;
+}
+.dropdown-svg {
+transition: color 0.15s;
+transition-timing-function: ease-out;
+}
+.dropdown-svg:hover {
+color: var(--cyan);
+}
+.badge-pill {
+background-color: var(--cyan);
+}
+.reload-button {
+padding: 0;
+}
+.reload-button:focus,
+.reload-button:active {
+box-shadow: none;
+}
+html {
+overflow-y: overlay;
+}
+@media screen and (max-width: 220px) {
+.results-list,
+.leaderboard-list {
+width: 100%;
+}
+}
+@media screen and (max-width: 479px) {
+.results-container {
+flex-direction: column;
+align-items: center !important;
+}
+.results-list {
+margin-right: 0;
+margin-bottom: 20px;
+}
+.leaderboard-list {
+margin-left: 0;
+margin-top: 20px;
+}
+}
+</style>
+<script>
+let main = document.getElementById('main');
+let textContainer = document.getElementById('text-container');
+let resultsContainer = document.getElementById('results');
+let wpmText = document.getElementById('wpm');
+let accuracyText = document.getElementById('accuracy');
+let timeText = document.getElementById('time');
+console.log(main)
+let leaderboardHtmlArr = [
+document.querySelector('leaderboard-first'),
+document.querySelector('leaderboard-second'),
+document.querySelector('leaderboard-third'),
+];
+let reloadButton = document.getElementById('reload-button');
+const invalidKeys = 'F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 Escape Tab CapsLock Shift Control Alt Meta ArrowLeft ArrowRight ArrowDown ArrowUp Enter'.split(
+' ',
+);
+const text =
+'I hope your day is going well. Thanks for trying out my typing test. Did you know that this project was actually made for Hackclub? Hackclub is a worldwide, student led coding club for teens that strives to provide a comfortable and educational place to collaborate with others!';
+const textArr = text.split('');
+const htmlArr = textArr.map((item, index, array) => {
+if (item === ' ') {
+return `<span class="space" id="span${index}">${item}</span>`;
+}
+return `<span class="char" id="span${index}">${item}</span>`;
+});
+let errors = [];
+textContainer.innerHTML = htmlArr.join('');
+let firstTime = true;
+let currentPos = 0;
+let backspaceNeeded = false;
+let currentTime = 0;
+let repeat;
+document.addEventListener('keydown', event => {
+if (event.key === ' ') {
+event.preventDefault();
+}
+if (firstTime) {
+firstTime = false;
+repeat = setInterval(() => currentTime++, 1000);
+}
+if (event.location === 0 && !invalidKeys.includes(event.key)) {
+handleKey(event.key);
+}
+});
+reloadButton.addEventListener('click', () => handlePlayAgain());
+function handleKey(key) {
+let span = document.getElementById(`span${currentPos}`).style;
+if (!backspaceNeeded) {
+if (key === textArr[currentPos]) {
+span.color = 'green';
+currentPos++;
+} else {
+if (textArr[currentPos] === ' ') {
+span.backgroundColor = 'red';
+} else {
+span.color = 'red';
+}
+backspaceNeeded = true;
+errors.push(textArr[currentPos]);
+}
+} else {
+if (event.key === 'Backspace') {
+if (textArr[currentPos] === ' ') {
+span.backgroundColor = 'transparent';
+} else {
+span.color = 'black';
+}
+backspaceNeeded = false;
+}
+}
+if (currentPos === textArr.length) {
+clearInterval(repeat);
+handleEnd();
+return;
+}
+}
+function handleEnd() {
+let wpm = Math.floor(textArr.length / 5 / (currentTime / 60));
+let accuracy = Math.floor(
+((textArr.length - errors.length) / textArr.length) * 100,
+);
+let multiples = Math.floor(currentTime / 60);
+let seconds = currentTime - multiples * 60;
+wpmText.innerHTML = `${wpm} wpm`;
+accuracyText.innerHTML = `${accuracy}%`;
+timeText.innerHTML = `${multiples} m ${seconds} s`;
+// Check if localstorage exists
+let scoresArr;
+if (localStorage.length === 0) {
+scoresArr = [];
+} else {
+scoresArr = JSON.parse(localStorage.getItem('scoresArr'));
+}
+scoresArr.push({
+wpm: wpm,
+accuracy: accuracy,
+minutes: multiples,
+seconds: seconds,
+});
+scoresArr.sort((a, b) => b.wpm - a.wpm);
+let leaderboardArr = scoresArr.slice(0, 3);
+localStorage.setItem('scoresArr', JSON.stringify(leaderboardArr));
+leaderboardArr.forEach((item, index, array) => {
+let arr = leaderboardHtmlArr[index];
+arr[0].innerHTML = `${item.wpm} wpm`;
+arr[1].innerHTML = item.wpm;
+arr[2].innerHTML = `${item.accuracy}%`;
+arr[3].innerHTML = `${item.minutes} m ${item.seconds} s`;
+});
+main.style.display = 'none';
+resultsContainer.style.display = 'flex';
+}
+function handlePlayAgain() {
+// reset variables
+errors = [];
+firstTime = true;
+currentPos = 0;
+backspaceNeeded = false;
+currentTime = 0;
+repeat = null;
+// reset the colors
+for (let element of htmlArr) {
+let span = document.getElementById(`span${htmlArr.indexOf(element)}`);
+span.style.color = 'black';
+}
+// change displays
+main.style.display = 'block';
+resultsContainer.style.display = 'none';
+}
+function clearStorage() {
+    localStorage.clear();
+    leaderboardHtmlArr.forEach((item, index, array) => {
+        item[0].innerHTML = 'none';
+        item[1].innerHTML = 'none';
+        item[2].innerHTML = 'none';
+        item[3].innerHTML = 'none';
+    });
+}
+</script>
+<nav class="navbar">
+    <!-- A container to center align elements inside it -->
+    <a
+        class="hackclub-logo"
+        href="https://hackclub.com"
+        aria-label="hackclub's website"
+        >
+        <img
+        src="https://assets.hackclub.com/flag-orpheus-top.svg"
+        height="60"
+        alt=""
+        />
+    </a>
+    <div class="spacer"></div>
+    <span class="nav-text font-weight-light my-2 mx-auto"
+    >Made for Hackclub</span
+    >
+    <a
+        class="github-logo"
+        href="https://www.github.com/gurshanbrar/javascript-typing-test"
+        aria-label="my github"
+        >
+        <svg width="50" height="50" viewBox="0 0 16 16" alt="">
+            <path
+                fill-rule="evenodd"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            ></path>
+        </svg>
+    </a>
+</nav>
+<!-- Content -->
+<main>
+    <div class="intro">
+        <h1 class="intro-heading">Typing Test</h1>
+        <p class="font-weight-light intro-text">
+            This is a typing speed test! Type a letter to begin.
+        </p>
+    </div>
+    <div id="main" class="container main">
+        <div class="text-container" id="text-container"></div>
+    </div>
+    <div
+        class="justify-content-center align-items-start results-container"
+        id="results"
+        >
+        <!-- Results UL -->
+        <ul class="list-group d-inline-block results-list">
+            <li class="list-group-item font-weight-bold results-header">
+                Your Results
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+            <span>WPM:</span
+            ><span class="font-weight-light" id="wpm"></span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+        <span>Accuracy:</span
+        ><span class="font-weight-light" id="accuracy"></span>
+    </li>
+    <li class="list-group-item d-flex justify-content-between">
+    <span>Time:</span
+    ><span class="font-weight-light" id="time"></span>
+</li>
+<li class="list-group-item d-flex justify-content-center">
+    <button id="reload-button" class="btn reload-button">
+    <img
+    src="https://cloud-603j07ump.vercel.app/0reload.svg"
+    />
+    </button>
+</li>
+</ul>
+<!-- Leaderboard -->
+<ul class="list-group leaderboard-list d-block">
+<li
+    class="list-group-item font-weight-bold leaderboard-header"
+    >
+    Recent Scores
+</li>
+<!-- LI:1 -->
+<li
+    class="list-group-item d-flex justify-content-between align-items-center"
+    >
+    <span class="badge badge-primary badge-pill">1</span>
+    <span class="leaderboard-first">none</span>
+    <button
+    class="btn dropdown-button"
+    data-toggle="collapse"
+    data-target="#collapse-first"
+    type="button"
+    >
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="23"
+        height="23"
+        fill="currentColor"
+        class="bi bi-arrow-down-circle dropdown-svg"
+        viewBox="0 0 16 16"
+        alt=""
+        >
+        <path
+            fill-rule="evenodd"
+            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"
+            />
+        </svg>
+        </button>
+    </li>
+    <!-- Collapse:1 -->
+    <div class="collapse" id="collapse-first">
+        <li
+            class="list-group-item d-flex justify-content-between"
+            >
+        <span>WPM:</span
+        ><span
+            class="font-weight-light leaderboard-first"
+            id="wpm"
+        >none</span
+        >
+    </li>
+    <li
+        class="list-group-item d-flex justify-content-between"
+        >
+        <span>Accuracy:</span>
+        <span
+            class="font-weight-light leaderboard-first"
+            id="accuracy"
+        >none</span
+        >
+    </li>
+    <li
+        class="list-group-item d-flex justify-content-between"
+        >
+    <span>Time:</span
+    ><span
+        class="font-weight-light leaderboard-first"
+        id="time"
+    >none</span
+    >
+</li>
+</div>
+<!-- LI: 2 -->
+<li
+class="list-group-item d-flex justify-content-between align-items-center"
+>
+<span class="badge badge-primary badge-pill">2</span>
+<span class="leaderboard-second">none</span>
+<button
+class="btn dropdown-button"
+data-toggle="collapse"
+data-target="#collapse-second"
+type="button"
+>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="23"
+    height="23"
+    fill="currentColor"
+    class="bi bi-arrow-down-circle dropdown-svg"
+    viewBox="0 0 16 16"
+    >
+    <path
+        fill-rule="evenodd"
+        d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"
+        />
+    </svg>
+    </button>
+</li>
+<!-- Collapse: 2 -->
+<div class="collapse" id="collapse-second">
+    <li
+        class="list-group-item d-flex justify-content-between"
+        >
+    <span>WPM:</span
+    ><span
+        class="font-weight-light leaderboard-second"
+        id="wpm"
+    >none</span
+    >
+</li>
+<li
+    class="list-group-item d-flex justify-content-between"
+    >
+<span>Accuracy:</span
+><span
+    class="font-weight-light leaderboard-second"
+    id="accuracy"
+>none</span
+>
+</li>
+<li
+class="list-group-item d-flex justify-content-between"
+>
+<span>Time:</span
+><span
+class="font-weight-light leaderboard-second"
+id="time"
+>none</span
+>
+</li>
+</div>
+<!-- LI: 3 -->
+<li
+class="list-group-item d-flex justify-content-between align-items-center"
+>
+<span class="badge badge-primary badge-pill">3</span>
+<span class="leaderboard-third">none</span>
+<button
+class="btn dropdown-button"
+data-toggle="collapse"
+data-target="#collapse-third"
+type="button"
+>
+<svg
+xmlns="http://www.w3.org/2000/svg"
+width="23"
+height="23"
+fill="currentColor"
+class="bi bi-arrow-down-circle dropdown-svg"
+viewBox="0 0 16 16"
+>
+<path
+fill-rule="evenodd"
+d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"
+/>
+</svg>
+</button>
+</li>
+<!-- Collapse: 3 -->
+<div class="collapse" id="collapse-third">
+<li
+class="list-group-item d-flex justify-content-between"
+>
+<span>WPM:</span
+><span
+class="font-weight-light leaderboard-third"
+id="wpm"
+>none</span
+>
+</li>
+<li
+class="list-group-item d-flex justify-content-between"
+>
+<span>Accuracy:</span
+><span
+class="font-weight-light leaderboard-third"
+id="accuracy"
+>none</span
+>
+</li>
+<li
+class="list-group-item d-flex justify-content-between"
+>
+<span>Time:</span
+><span
+class="font-weight-light leaderboard-third"
+id="time"
+>none</span
+>
+</li>
+</div>
+<li class="list-group-item">
+<button onclick="clearStorage()" class="btn btn-info">
+Clear Scores
+</button>
+</li>
+</ul>
+</div>
+</main>
+<!-- Bootstrap's scripts -->
+<script
+src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+crossorigin="anonymous"
+></script>
+<script
+src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+crossorigin="anonymous"
+></script>
+<script
+src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"
+integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s"
+crossorigin="anonymous"
+></script>
