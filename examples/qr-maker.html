@@ -1,0 +1,42 @@
+
+<script type="module">
+  import QRCode from 'https://cdn.skypack.dev/qrcode';
+
+  async function makeQR(text) {
+    var opts = {
+      errorCorrectionLevel: 'L',
+      type: 'svg',
+      color: {
+        dark:"#000000",
+        light:"#FFFFFF"
+      }
+    }
+
+    let s = "";
+  
+    QRCode.toString(text, opts, function (err, string) {
+      if (err) throw err
+  
+      s = string;
+    })
+
+    return s
+
+  }
+
+  (async function() {
+    let svgs = [];
+    for (let i = 0; i < 1; i++) {
+      let s = await makeQR(`https://hack.af/test-url`)
+      svgs.push(s);
+    }
+
+    let allSvgs = svgs.join("");
+    console.log(allSvgs)
+    
+    document.querySelector("main").innerHTML = allSvgs;
+  })()
+
+</script>
+
+<main></main>

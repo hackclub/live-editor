@@ -29,8 +29,6 @@ export function view(state) {
 				<button class="menu-button" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
 				<button class="menu-button" @click=${() => dispatch("SHARE")}>share</button>
 				${options(state.useShadowDom)}
-				<button class="menu-button" @click=${() => dispatch("LAST")}>⇦</button>
-				<button class="menu-button" @click=${() => dispatch("NEXT")}>⇨</button>
 			</div>
 		</div>
 		${ state.useShadowDom ? html`<div class="viewer viewer-div"></div>` : html`<iframe class="viewer viewer-iframe"></iframe>` }

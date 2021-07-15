@@ -56,8 +56,8 @@ body {
   background: grey;
   display: grid;
   grid-template:
-    ". . . . ." 100%
-    / auto auto auto auto auto;
+    ". . ." 100%
+    / auto auto auto;
 }
 
 .menu-button {
