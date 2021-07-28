@@ -7,7 +7,7 @@ function setInnerHTML(elm, html) {
   elm.innerHTML = html;
   Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
   	const text = oldScript.innerHTML;
-  	(new Function("document", text))(elm); // need to make imports work
+  	(new Function("document", text))(elm); // need to make imports work, this messes up document methods
   	// const newScript = document.createElement("script");
     // Array.from(oldScript.attributes)
     //   .forEach( attr => newScript.setAttribute(attr.name, attr.value) );
@@ -29,10 +29,10 @@ const STATE = {
 	codemirror: undefined,
 	url: undefined,
 	useShadowDom: true,
-	presentation: {
-		slides: [],
-		index: 0,
-	},
+	// presentation: {
+	// 	slides: [],
+	// 	index: 0,
+	// },
 };
 
 const ACTIONS = {
