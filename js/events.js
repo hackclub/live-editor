@@ -1,5 +1,3 @@
-// import ftdomdelegate from 'https://cdn.skypack.dev/ftdomdelegate';
-
 const trigger = e => e.composedPath()[0];
 const matchesTrigger = (e, selectorString) => trigger(e).matches(selectorString);
 // create on listener

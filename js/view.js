@@ -35,6 +35,3 @@ export function view(state) {
 		<div id="vertical-bar"></div>
 	`
 }
-
-// <button class="menu-button" @click=${() => dispatch("LAST")}>⇦</button>
-// <button class="menu-button" @click=${() => dispatch("NEXT")}>⇨</button>

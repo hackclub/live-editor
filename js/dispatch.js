@@ -29,10 +29,6 @@ const STATE = {
 	codemirror: undefined,
 	url: undefined,
 	useShadowDom: true,
-	// presentation: {
-	// 	slides: [],
-	// 	index: 0,
-	// },
 };
 
 const ACTIONS = {
@@ -48,24 +44,10 @@ const ACTIONS = {
 	    const file = new URLSearchParams(search).get("file");
 	    const vert = new URLSearchParams(search).get("vert");
 	    const renderer = new URLSearchParams(search).get("renderer");
-	    const slides = new URLSearchParams(search).get("slides");
 
 	    if (vert) document.documentElement.style.setProperty("--vertical-bar", `${vert}%`);
 	    if (renderer === "iframe") state.useShadowDom = false;
-
-	    if (slides) {
-          let file_url = file;
-          if (!file.startsWith("http")) {
-              file_url = `examples/${file}`;
-          }
-
-	      fetch(file_url,  {mode: 'cors'})
-	        .then(file => file
-	          .text().then( txt => {
-	  			console.log(txt);
-	          })
-	        );
-	    } 
+	    if (renderer === "shadow-dom") state.useShadowDom = true;
 
 	    if (code) { // encoded code
 	    	const decoded = lzutf8.decompress(code, { inputEncoding: "StorageBinaryString" });
@@ -94,26 +76,14 @@ const ACTIONS = {
 	            dispatch("RUN");
 	          })
 	        );
-	    } else { // default
-		 //    state.codemirror.view.dispatch({
-			//   changes: {from: 0, insert: ""}
-			// });
-			// dispatch("RUN");
-	    }
+	    } else { /* default */ } 
 	},
 	RUN(args, state) {
 		const html = state.codemirror.view.state.doc.toString();
-
-		// let switched = state.useShadowDom;
-		// if (state.useShadowDomDefault) state.useShadowDom = !html.includes("<!-- use iframe -->");
-		// switched = state.useShadowDom !== switched;
-		// if (switched) dispatch("RENDER");
-
 		const container = document.querySelector(".viewer");
 
 		if (state.useShadowDom) {
 			let shadowRoot = container.shadowRoot ?? container.attachShadow({mode: 'open'});
-			// if (!shadowRoot) shadowRoot = container.attachShadow({mode: 'open'});
 			setInnerHTML(shadowRoot, html);
 		} else { // iframe
 			const iframe = container;
