@@ -13,7 +13,7 @@
 </style>
 
 <script>
-  const PROGRAM = `
+  let program = `
     goto 200 200 0
     right ${161}
     repeat ${86} [ 
@@ -21,6 +21,10 @@
       right ${91} 
     ]
   `
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if (urlParams.get("program")) program = urlParams.get("program");
 
   const c = dom.querySelector("canvas");
   const w = 400;
@@ -313,7 +317,7 @@
     return turtle;
   }
 
-  const t = run(PROGRAM);
+  const t = run(program);
   
   draw(t)
 </script>
