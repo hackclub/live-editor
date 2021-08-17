@@ -13,6 +13,15 @@
 </style>
 
 <script>
+  const PROGRAM = `
+    goto 200 200 0
+    right ${161}
+    repeat ${86} [ 
+      forward count*${12.3}/${3}
+      right ${91} 
+    ]
+  `
+
   const c = dom.querySelector("canvas");
   const w = 400;
   const h = 400;
@@ -292,7 +301,7 @@
   }
 
   function run(string) {
-    const toks = tokenize(testString.split("\n").join(";"))
+    const toks = tokenize(string.split("\n").join(";"))
     // console.log("toks", toks);
     const parsed = parser(toks);
     const ast = new Stream(parsed);
@@ -304,15 +313,7 @@
     return turtle;
   }
 
-  const testString = `
-    goto 200 200 0
-    right ${161}
-    repeat ${86} [ 
-      forward count*${12.3}/${3}
-      right ${91} 
-    ]
-  `
-  const t = run(testString);
+  const t = run(PROGRAM);
   
   draw(t)
 </script>
