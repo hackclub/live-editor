@@ -1,0 +1,321 @@
+<style>
+  main {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  
+  canvas {
+    border: 2px solid black;
+  }
+</style>
+
+<script>
+  const c = document.querySelector("canvas");
+  const w = 400;
+  const h = 400;
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.translate(0.5, 0.5);
+  // how did matthew and I do it again
+  
+  const draw = x => x.pls.map(pts => {
+    ctx.beginPath();
+    const [f, ...rest] = pts;
+    ctx.moveTo(f.x, f.y);
+    rest.forEach(({x, y}) => ctx.lineTo(x, y))
+    ctx.stroke();
+  })
+
+  class Turtle {
+    constructor() {
+      this.pls = [ [{x: 0, y: 0}] ];
+      this.angle = 0;
+    }
+
+    lastPl() {
+      return this.pls[this.pls.length - 1]
+    }
+
+    lastPt() {
+      const pl = this.lastPl();
+      return pl[pl.length - 1];
+    }
+
+    addPt(pt, newPl = false) {
+      if (!newPl) {
+        this.lastPl().push(pt)
+      } else {
+        if (this.lastPl().length === 1) {
+          this.lastPl()[0] = pt;
+        } else {
+          this.pls.push([pt])
+        }
+      }
+    }
+
+    goto(x, y, draw = true) {
+      this.addPt({x, y}, !draw);
+      return this;
+    }
+    
+    forward(dist, draw = true) {
+      const last = this.lastPt();
+      const a = this.angle/180 * Math.PI;
+      const x = last.x + dist * Math.cos(a);
+      const y = last.y + dist * Math.sin(a);
+      this.addPt({x, y}, !draw);
+      return this;
+    }
+    
+    turn(theta) {
+      const newAngle = this.angle + theta;
+      this.setangle(newAngle);
+      return this;
+    }
+
+    right(theta) {
+      return this.turn(theta);
+    }
+
+    left(theta) {
+      return this.turn(-theta);
+    }
+
+    setangle(angle) {
+      this.angle = angle % 360;
+      return this;
+    }
+  }
+
+  const makeTokenizer = (rules, skip = []) => string => { 
+    let index = 0;
+    const peek = () => string[index];
+    const next = () => string[index++];
+    const tokens = [];
+  
+    while (index < string.length) {
+      let type, test;
+      for (const key in rules) {
+        type = key;
+        const rule = rules[key];
+        const isRegEx = rule instanceof RegExp;
+        test = isRegEx ? x => { const match = x.match(rule); return match && match[0] === x } : rule;
+        if (test(peek())) break;
+      }
+  
+      if (!test || !test(peek())) throw `Unknown character: ${peek()}`
+    
+      let value = next();
+      while (test(value)) {
+        let nextVal = value + peek();
+        if (!test(nextVal)) break;
+        value += next();
+        if (peek() === undefined) break;
+      }
+  
+      if (!skip.includes(type)) tokens.push({ type, value });
+    }
+  
+    return tokens;
+  }
+  
+  // example
+  
+  const tokenRules = {
+    num: /\d+\.\d+|\d+\.|\.\d+|\d+/,
+    op: (char) => ["+", "-", "/", "*"].includes(char),
+    symbol: /[a-zA-Z][a-zA-Z\d]*/,
+    punc: (char) => ["(", ")", "[", "]", ";"].includes(char),
+    ws: /\s+/
+  }
+  
+  // i need to check start and then each character
+  
+  const skip = ["ws"];
+
+  const tokenize = makeTokenizer(tokenRules, skip);
+
+  const parse = pred => s => {
+    if (typeof pred === "string") pred = convert(pred);
+    
+  const result = pred(s);
+    const next = result ? parse(pred)(result[1]) : null;
+    return result 
+      ? next ? [ result, ...next ] : [result]
+      : [];
+  }
+  
+  const convert = string => s => string.includes(":") 
+    ? s[0] && (s[0].type === string.split(":")[0] && s[0].value === string.split(":")[1]) ? [ s[0], s.slice(1) ] : null
+    : s[0] && s[0].type === string ? [ s[0], s.slice(1) ] : null
+
+  
+  const or = (preds, transform = null) => s => {
+      const result = preds.reduce((acc, cur) => 
+          acc || (typeof cur === "string" ? convert(cur) : cur)(s)
+        , false);
+  
+      return (transform ? transform(result) : result) || null
+  }
+  
+  const and = (preds, transform = null) => s => { // must match each predicate
+    const result = [];
+    for (let pred of preds) {
+      if (typeof pred === "string") pred = convert(pred);
+
+      const next = pred(s);
+      if (next === null) return null;
+      s = next[1];
+      result.push(next[0])
+    }
+    
+    return result.length === preds.length 
+      ? [transform ? transform(result) : result, s] 
+      : null;
+  }
+
+  const until = (pred, transform = null) => s => {
+    const result = [];
+    if (typeof pred === "string") pred = convert(pred);
+    while (true) {
+      const next = pred(s);
+      if (next !== null) break;
+      result.push(s[0])
+      s = s.slice(1);
+    }
+    
+    return [transform ? transform(result) : result, s];
+  }
+
+  const e = s => or([
+    and([p, "op", e], x => ({ type: "binary", val: x })),
+    p
+  ])(s)
+    
+  const p = s => or([
+    and(["op", p], x => ({ type: "unary", val: x })),
+    or([ 
+      and(["punc:(", e, "punc:)"], x => ({ type: "parens", val: x[1] }) ), 
+      and(["punc:[", until("punc:]"), "punc:]"], x => parser(x[1]))
+    ]), 
+    or(["num", "symbol", "punc:;"])
+  ])(s)
+
+  const parser = x => parse(e)(x).map(x => x[0]);
+
+  class Stream {
+    constructor(ast) {
+      this.index = 0;
+      this.ast = ast;
+    }
+
+    peek() {
+      return this.ast[this.index];
+    }
+
+    next() {
+      const current = this.ast[this.index];
+      this.index++;
+      return current;
+    }
+  }
+
+  const unaries = {
+    "-": x => -x
+  }
+
+   const ops = {
+    "+": (x, y) => x + y,
+    "-": (x, y) => x - y,
+    "*": (x, y) => x * y,
+    "/": (x, y) => x / y,
+  };
+
+  const types = {
+    symbol: (value, args) => turtle[value](...args),
+    num: (value) => Number(value),   
+    op: (value, x, y) => ops[token.value](x, y)
+  };
+
+  const funcs = {
+    forward: args => turtle => turtle.forward(...args),
+    left: args => turtle => turtle.left(...args),
+    right: args => turtle => turtle.right(...args),
+    goto: args => turtle => turtle.goto(...args),
+    repeat: args => turtle => {
+      for (let i = 0; i < args[0]; i++) {
+        const ast = new Stream(args[1]);
+        while (ast.peek() !== undefined) {
+          evaluate(ast.next(), ast, turtle, count = i);
+        }
+      }
+
+      return turtle;
+    }
+  }
+
+  function evaluate(node, ast, turtle, count = 0) {
+    if (node === undefined) return;
+    
+    if (Array.isArray(node)) {
+      const newAst = new Stream(node);
+      // return evaluate(newAst.next(), newAst, turtle);
+      return node;
+    } 
+    else if (node.type === "num") return Number(node.value);
+    else if (node.type == "binary") {
+      const [ left, op, right ] = node.val;
+      return ops[op.value](evaluate(left, ast, turtle, count), evaluate(right, ast, turtle, count));
+    } else if (node.type == "symbol") {
+      if (node.value === "count") return count;
+      
+      const args = [];
+      while (ast.peek().value !== ";") {
+        args.push(evaluate(ast.next(), ast, turtle, count))
+        if (!ast.peek()) break;
+      }
+      
+      return funcs[node.value](args)(turtle);
+    } else if (node.type == "unary") {
+      console.log(node)
+      // const [ left, op, right ] = node.val;
+      return null;
+    } else if (node.type === "punc" && node.value === ";") {
+      return evaluate(ast.next(), ast, turtle, count);
+    } else {
+      console.error("Unexpected:", node);
+    }
+  }
+
+  function run(string) {
+    const toks = tokenize(testString.split("\n").join(";"))
+    // console.log("toks", toks);
+    const parsed = parser(toks);
+    const ast = new Stream(parsed);
+    const turtle = new Turtle();
+    while (ast.peek() !== undefined) {
+      evaluate(ast.next(), ast, turtle);
+    }
+
+    return turtle;
+  }
+
+  const testString = `
+    goto 200 200 0
+    right ${161}
+    repeat ${86} [ 
+      forward count*${12.3}/${3}
+      right ${91} 
+    ]
+  `
+  const t = run(testString);
+  
+  draw(t)
+</script>
+
+<main>
+  <canvas></canvas>
+</main>

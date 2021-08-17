@@ -7,7 +7,7 @@ function setInnerHTML(elm, html) {
   elm.innerHTML = html;
   Array.from(elm.querySelectorAll("script")).forEach( oldScript => {
   	const text = oldScript.innerHTML;
-  	(new Function("document", text))(elm); // need to make imports work, this messes up document methods
+  	(new Function("dom", text))(elm); // need to make imports work, this messes up document methods
   	// const newScript = document.createElement("script");
     // Array.from(oldScript.attributes)
     //   .forEach( attr => newScript.setAttribute(attr.name, attr.value) );

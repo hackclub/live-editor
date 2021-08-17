@@ -1,0 +1,47 @@
+<style>
+  main {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+  }
+  
+  canvas {
+    border: 2px solid black;
+  }
+</style>
+
+<script type="module">
+  const c = dom.querySelector("canvas");
+  const w = 400;
+  const h = 400;
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.translate(0.5, 0.5);
+  // how did matthew and I do it again
+  
+  const draw = x => x.pathMap(p => {
+    ctx.lineWidth = p.strokeWidth;
+    ctx.strokeStyle = p.strokeColor;
+    ctx.beginPath();
+    const [f, ...rest] = p.points;
+    ctx.moveTo(f.x, f.y);
+    rest.forEach(({x, y}) => ctx.lineTo(x, y))
+    ctx.stroke();
+  })
+
+ const t = new Turtle();
+  t
+    .forward(608)
+    .right(149)
+    .repeat(107)
+    .thicken(3 + -40/50)
+    .move(t.cc, [w/2, h/2])
+
+  draw(t)
+</script>
+
+<main>
+  <canvas></canvas>
+</main>
