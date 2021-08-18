@@ -15,11 +15,18 @@
 <script>
   let program = `
     goto 200 200 0
-    right ${161}
-    repeat ${86} [ 
-      forward count*${12.3}/${3}
-      right ${91} 
+    right ${546}
+    repeat 3 [
+        repeat ${14} [
+          repeat ${159} [ 
+            forward ${0.2}
+            right ${0.8} 
+          ]
+          left ${177}
+        ]
+      right ${93}
     ]
+
   `
 
   const queryString = window.location.search;
@@ -103,7 +110,7 @@
       return this;
     }
   }
-
+  
   const makeTokenizer = (rules, skip = []) => string => { 
     let index = 0;
     const peek = () => string[index];
@@ -115,19 +122,26 @@
       for (const key in rules) {
         type = key;
         const rule = rules[key];
-        const isRegEx = rule instanceof RegExp;
-        test = isRegEx ? x => { const match = x.match(rule); return match && match[0] === x } : rule;
+        const makeRegExTest = x => { 
+          const match = x.match(rule); 
+          return match && match[0] === x;
+        }
+
+        test = 
+            rule instanceof RegExp ? makeRegExTest 
+          : typeof rule === "string" ? x => x === rule
+          : rule;
+
         if (test(peek())) break;
       }
   
       if (!test || !test(peek())) throw `Unknown character: ${peek()}`
     
       let value = next();
-      while (test(value)) {
+      while (test(value) && peek() !== undefined) {
         let nextVal = value + peek();
         if (!test(nextVal)) break;
         value += next();
-        if (peek() === undefined) break;
       }
   
       if (!skip.includes(type)) tokens.push({ type, value });
@@ -142,30 +156,43 @@
     num: /\d+\.\d+|\d+\.|\.\d+|\d+/,
     op: (char) => ["+", "-", "/", "*"].includes(char),
     symbol: /[a-zA-Z][a-zA-Z\d]*/,
-    punc: (char) => ["(", ")", "[", "]", ";"].includes(char),
+    // punc: ["(", ")", "[", "]", ";"],
+    "(": "(",
+    ")": ")",
+    "[": "[",
+    "]": "]",
+    ";": ";",
     ws: /\s+/
   }
+  // if array should do full check
   
   // i need to check start and then each character
   
   const skip = ["ws"];
 
   const tokenize = makeTokenizer(tokenRules, skip);
-
-  const parse = pred => s => {
-    if (typeof pred === "string") pred = convert(pred);
-    
-    const result = pred(s);
-      const next = result ? parse(pred)(result[1]) : null;
-      return result 
-        ? next ? [ result, ...next ] : [result]
-        : [];
-  }
   
-  const convert = string => s => string.includes(":") 
-    ? s[0] && (s[0].type === string.split(":")[0] && s[0].value === string.split(":")[1]) ? [ s[0], s.slice(1) ] : null
-    : s[0] && s[0].type === string ? [ s[0], s.slice(1) ] : null
+  const convert = pred => s => {
+    return s[0] && s[0].type === pred 
+      ? [ s[0], s.slice(1) ] 
+      : null
+  }
 
+  const many = (pred) => s => {
+    if (typeof pred === "string") pred = convert(pred);
+
+    const arr = [];
+    let next = pred(s);
+
+    while (next) {
+      arr.push(next);
+      next = pred(next[1]);
+    }
+
+    return arr.length > 0 
+      ? [ arr.map(([x]) => x), arr[arr.length - 1][1] ] 
+      : [[], s];
+  }
   
   const or = (preds, transform = null) => s => {
       const result = preds.reduce((acc, cur) => 
@@ -191,34 +218,21 @@
       : null;
   }
 
-  const until = (pred, transform = null) => s => {
-    const result = [];
-    if (typeof pred === "string") pred = convert(pred);
-    while (true) {
-      const next = pred(s);
-      if (next !== null) break;
-      result.push(s[0])
-      s = s.slice(1);
-    }
-    
-    return [transform ? transform(result) : result, s];
-  }
-
   const e = s => or([
-    and([p, "op", e], x => ({ type: "binary", val: x })),
+    and([p, "op", e], x => ({ type: "binary", value: x })),
     p
   ])(s)
     
   const p = s => or([
-    and(["op", p], x => ({ type: "unary", val: x })),
+    and(["op", p], x => ({ type: "unary", value: x })),
     or([ 
-      and(["punc:(", e, "punc:)"], x => ({ type: "parens", val: x[1] }) ), 
-      and(["punc:[", until("punc:]"), "punc:]"], x => parser(x[1]))
+      and(["(", e, ")"], x => ({ type: "parens", value: x[1] }) ),
+      and(["[", many(e), "]"], x => x[1]),
     ]), 
-    or(["num", "symbol", "punc:;"])
+    or(["num", "symbol", ";"])
   ])(s)
 
-  const parser = x => parse(e)(x).map(x => x[0]);
+  const parse = x => many(e)(x)[0];
 
   class Stream {
     constructor(ast) {
@@ -234,6 +248,10 @@
       const current = this.ast[this.index];
       this.index++;
       return current;
+    }
+
+    eof() {
+      return this.peek() === undefined;
     }
   }
 
@@ -262,7 +280,7 @@
     repeat: args => turtle => {
       for (let i = 0; i < args[0]; i++) {
         const ast = new Stream(args[1]);
-        while (ast.peek() !== undefined) {
+        while (!ast.eof()) {
           evaluate(ast.next(), ast, turtle, count = i);
         }
       }
@@ -281,23 +299,26 @@
     } 
     else if (node.type === "num") return Number(node.value);
     else if (node.type == "binary") {
-      const [ left, op, right ] = node.val;
-      return ops[op.value](evaluate(left, ast, turtle, count), evaluate(right, ast, turtle, count));
+      const [ left, op, right ] = node.value;
+      return ops[op.value](
+        evaluate(left, ast, turtle, count), 
+        evaluate(right, ast, turtle, count)
+      );
     } else if (node.type == "symbol") {
       if (node.value === "count") return count;
       
       const args = [];
       while (ast.peek().value !== ";") {
         args.push(evaluate(ast.next(), ast, turtle, count))
-        if (!ast.peek()) break;
+        if (ast.eof()) break;
       }
       
       return funcs[node.value](args)(turtle);
     } else if (node.type == "unary") {
       console.log(node)
-      // const [ left, op, right ] = node.val;
+      // const [ left, op, right ] = node.value;
       return null;
-    } else if (node.type === "punc" && node.value === ";") {
+    } else if (node.type === ";") {
       return evaluate(ast.next(), ast, turtle, count);
     } else {
       console.error("Unexpected:", node);
@@ -307,10 +328,11 @@
   function run(string) {
     const toks = tokenize(string.split("\n").join(";"))
     // console.log("toks", toks);
-    const parsed = parser(toks);
+    const parsed = parse(toks);
+    // console.log("parsed", parsed)
     const ast = new Stream(parsed);
     const turtle = new Turtle();
-    while (ast.peek() !== undefined) {
+    while (!ast.eof()) {
       evaluate(ast.next(), ast, turtle);
     }
 
@@ -320,8 +342,7 @@
   const t = run(program);
   
   draw(t)
+
 </script>
 
-<main>
-  <canvas></canvas>
-</main>
+<main><canvas></canvas></main>
