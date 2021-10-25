@@ -161,6 +161,10 @@ export function events(state) {
 	const bodyListener = createListener(document.body);
 	bodyListener("keydown", "", function(event) {
 		let code = event.code;
+
+		const prog = state.codemirror.view.state.doc.toString();
+    window.localStorage.setItem("cm-prog", prog);
+    
 		// console.log(code, event);
 		if (code === "Enter" && event.shiftKey) {
 		  event.preventDefault();
@@ -168,7 +172,14 @@ export function events(state) {
 		}
 	});
 
+	bodyListener("mousedown", "", (e) => {
+		console.log("test")
+		if (!e.target.matches(".examples > *, .examples")) {
+        dispatch("EXAMPLES", { show: false });
+    }
+	})
+
 	addVerticalBarDrag(state, bodyListener);
-	addNumberDragging(state, bodyListener);
+	// addNumberDragging(state, bodyListener);
 	addDropUpload(state, bodyListener);
 }

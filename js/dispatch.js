@@ -1,6 +1,8 @@
-import { html, render, lzutf8 } from './imports.js';
+import { html, render } from 'lit-html';
+import lzutf8 from 'lzutf8';
 import { view } from "./view.js";
 import { events } from "./events.js";
+import { defaultProg } from "./defaultProg.js";
 
 
 function setInnerHTML(elm, html) {
@@ -28,7 +30,9 @@ function copy(str) {
 const STATE = {
 	codemirror: undefined,
 	url: undefined,
-	useShadowDom: true,
+	useShadowDom: false,
+	showExamples: false,
+	examples: [],
 };
 
 const ACTIONS = {
@@ -76,7 +80,14 @@ const ACTIONS = {
 	            dispatch("RUN");
 	          })
 	        );
-	    } else { /* default */ } 
+	    } else { 
+	    	const saved = window.localStorage.getItem("cm-prog")
+        state.codemirror.view.dispatch({
+          changes: { from: 0, insert: !saved ? defaultProg.trim() : saved }
+        });
+
+        dispatch("RUN");
+	    } 
 	},
 	RUN(args, state) {
 		const html = state.codemirror.view.state.doc.toString();
@@ -90,8 +101,8 @@ const ACTIONS = {
 
 			var blob = new Blob([html], { type: 'text/html' });
 			URL.revokeObjectURL(state.url)
-  			state.url = URL.createObjectURL(blob);
-  			iframe.src = state.url;
+			state.url = URL.createObjectURL(blob);
+			iframe.src = state.url;
 
 
 			// this following approach should be faster but doesn't quite work
@@ -112,6 +123,10 @@ const ACTIONS = {
 		const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
     	copy(address);
 	},
+	EXAMPLES: ({ show }, state) => {
+		state.showExamples = show;
+		dispatch("RENDER");
+	},
 	CHANGE_RENDERER({ type }, state) {
 		if (type === "iframe") state.useShadowDom = false;
 		else state.useShadowDom = true;
@@ -120,15 +135,12 @@ const ACTIONS = {
 	},
 	RENDER() {
 		console.log("rendered")
+		render(view(STATE), document.getElementById("root"));
 	}
 }
 
-export function dispatch(action, args = {}, rerender = true) {
+export function dispatch(action, args = {}) {
 	const trigger = ACTIONS[action];
 	if (trigger) trigger(args, STATE);
 	else console.log("Action not recongnized:", action);
-
-	if (rerender) {
-		render(view(STATE), document.getElementById("root"));
-	}
 }
