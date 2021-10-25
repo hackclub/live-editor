@@ -28,7 +28,7 @@ export function view(state) {
 			<div class="menu">
 				<button class="menu-option" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
 				<button class="menu-option" @click=${() => dispatch("SHARE")}>share</button>
-				<button class="menu-option" @click=${() => dispatch("EXAMPLES", { show: !state.showExamples })}>
+				<button class="menu-option" @click=${() => dispatch("EXAMPLES", { show: true })}>
 					examples
 				</button>
 				${options(state.useShadowDom)}
