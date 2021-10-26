@@ -1,8 +1,7 @@
 import { html, render } from 'lit-html';
 import lzutf8 from 'lzutf8';
 import { view } from "./view.js";
-import { events } from "./events.js";
-import { defaultProg } from "./defaultProg.js";
+import { init } from "./init.js";
 
 
 function setInnerHTML(elm, html) {
@@ -37,57 +36,7 @@ const STATE = {
 
 const ACTIONS = {
 	INIT(args, state) {
-		dispatch("RENDER");
-		state.codemirror = document.querySelector("#code-editor");
-		events(state);
-
-		const url = new URL(window.location.href);
-
-	    const search = window.location.search;
-	    const code = new URLSearchParams(search).get("code");
-	    const file = new URLSearchParams(search).get("file");
-	    const vert = new URLSearchParams(search).get("vert");
-	    const renderer = new URLSearchParams(search).get("renderer");
-
-	    if (vert) document.documentElement.style.setProperty("--vertical-bar", `${vert}%`);
-	    if (renderer === "iframe") state.useShadowDom = false;
-	    if (renderer === "shadow-dom") state.useShadowDom = true;
-
-	    if (code) { // encoded code
-	    	const decoded = lzutf8.decompress(code, { inputEncoding: "StorageBinaryString" });
-	    	state.codemirror.view.dispatch({
-			  changes: {from: 0, insert: decoded}
-			});
-
-			// state.codemirror.foldRange(0, count+i);
-
-            dispatch("RUN");
-	    } else if (file) {
-          let file_url = file;
-          if (!file.startsWith("http")) {
-              file_url = `examples/${file}`;
-          }
-
-	      fetch(file_url,  {mode: 'cors'})
-	        .then(file => file
-	          .text().then( txt => {
-	            state.codemirror.view.dispatch({
-				  changes: {from: 0, insert: txt}
-				});
-
-				// state.codemirror.foldRange(0, count+i);
-
-	            dispatch("RUN");
-	          })
-	        );
-	    } else { 
-	    	const saved = window.localStorage.getItem("cm-prog")
-        state.codemirror.view.dispatch({
-          changes: { from: 0, insert: !saved ? defaultProg.trim() : saved }
-        });
-
-        dispatch("RUN");
-	    } 
+		init(state);
 	},
 	RUN(args, state) {
 		const html = state.codemirror.view.state.doc.toString();
@@ -121,7 +70,7 @@ const ACTIONS = {
 		const string = state.codemirror.view.state.doc.toString();
 		const encoded = lzutf8.compress(string, { outputEncoding: "StorageBinaryString" });
 		const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
-    	copy(address);
+    copy(address);
 	},
 	EXAMPLES: ({ show }, state) => {
 		state.showExamples = show;
@@ -134,7 +83,7 @@ const ACTIONS = {
 		dispatch("RUN");
 	},
 	RENDER() {
-		console.log("rendered")
+		console.log("rendered");
 		render(view(STATE), document.getElementById("root"));
 	}
 }

@@ -31,7 +31,6 @@ export function view(state) {
 				<button class="menu-option" @click=${() => dispatch("EXAMPLES", { show: true })}>
 					examples
 				</button>
-				${options(state.useShadowDom)}
 			</div>
 		</div>
 		${ state.useShadowDom ? html`<div class="viewer viewer-div"></div>` : html`<iframe class="viewer viewer-iframe"></iframe>` }

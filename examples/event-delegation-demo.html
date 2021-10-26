@@ -1,0 +1,33 @@
+<script type="module">
+  // javascript goes here
+  const matchesTrigger = (e, selectorString) => e.composedPath()[0].matches(selectorString);
+  const createListener = (target) => (eventName, selectorString, event) => { // focus doesn't work with this, focus doesn't bubble, need focusin
+  	target.addEventListener(eventName, (e) => {
+  		if (selectorString === "" || matchesTrigger(e, selectorString)) event(e);
+  	})
+  }
+  const delegate = createListener(document.body);
+  
+  delegate("mousedown", "", () => console.log("yo"))
+</script>
+
+<style>
+  /* css go here */
+
+  body {
+    margin: 0px;
+  }
+
+  .hello {
+    display: grid;
+    place-content: center;
+    background: coral;
+    height: 100vh;
+    width: 100vw;
+  }
+</style>
+
+<main>
+  <!-- html goes here -->
+  <div class="hello">Hello there!</div>
+</main>
