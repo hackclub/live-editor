@@ -18158,5 +18158,5 @@
       this.foldRange = foldRange(this.view);
     }
   };
-  window.customElements.define("code-mirror", CodeMirror);
+  window.customElements.define("codemirror-html", CodeMirror);
 })();

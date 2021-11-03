@@ -63,7 +63,7 @@ body {
   width: calc(100%/3);
 }
 
-.viewer-div {
+main {
   all: initial;
   overflow: scroll;
   /*font-family: auto;*/
@@ -99,11 +99,11 @@ body {
 	z-index: 0;
 }
 
-.ͼc {
+.ͼc, .ͼy {
   border: solid 1px rgb(0, 0, 0, 0);
 }
 
-.ͼc:hover {
+.ͼc:hover, .ͼy:hover {
   background: #e4e0e0;
   border: solid 1px grey;
   box-sizing: border-box;
@@ -178,6 +178,7 @@ body {
   align-items: flex-start;
   justify-content: start;
   align-content: flex-start;
+  z-index: 100;
 }
 
 .example {
@@ -189,4 +190,55 @@ body {
   margin: 5px;
   background: var(--background);
 }
+
+
+/*options*/
+
+.options {
+  display: flex;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 80%;
+  background: var(--background-2);
+  border: 2px solid black;
+  padding: 15px;
+  border-radius: 10px;
+  flex-wrap: nowrap;
+  align-content: center;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.option {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px;
+}
+
+.hide {
+  display: none;
+}
+
+.close {
+  position: fixed;
+  bottom: 10px;
+  width: 50%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  border-radius: 10px;
+  border: none;
+}
+
+.close:hover {
+  opacity: .7;
+}
+
+
+
+
+
+
 

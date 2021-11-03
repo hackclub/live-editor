@@ -94,7 +94,7 @@ function addNumberDragging(state, bodyListener) {
 	let dragged = false;
 	let num, pos_start, pos_end, sigFigs, usePrecision, selectedText;
 
-	bodyListener("mousedown", ".ͼc", e => {
+	bodyListener("mousedown", ".ͼc, .ͼy", e => {
 		const s = state.codemirror.view.state;
 		const doc = s.doc;
 		const pos = s.selection.main.head;
@@ -172,11 +172,11 @@ export function events(state) {
 		}
 	});
 
-	bodyListener("mousedown", "", (e) => {
-		if (!e.target.matches(".examples > *, .examples")) {
-        dispatch("EXAMPLES", { show: false });
-    }
-	})
+	// bodyListener("mousedown", "", (e) => {
+	// 	if (!e.target.matches(".examples > *, .examples")) {
+ //        dispatch("EXAMPLES", { show: false });
+ //    }
+	// })
 
 	addVerticalBarDrag(state, bodyListener);
 	addNumberDragging(state, bodyListener);
