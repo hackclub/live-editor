@@ -49,8 +49,10 @@ export function view(state) {
 const renderExamples = (state) => html`
 	<div class="examples hide">
 		${state.examples.map((x, i) => html`
-			<span class="example" @click=${() => dispatch("LOAD", { target: "TODO" })}>
-				"Default Name"
+			<span 
+				class="example" 
+				@click=${() => dispatch("LOAD_EXAMPLE", { content: x["Content"] })}>
+				${x["Name"]}
 			</span>
 		`)}
 		<button class="close" @click=${() => toggleHide("examples")}>close</button>
@@ -73,9 +75,11 @@ const renderOptions = (state) => {
 			</div>
 			<div class="option">
 				<span>Share Method:</span>
-				<select>
+				<select 
+					@change=${(e) => dispatch("SHARE_TYPE", { type: e.target.value})}
+					.value=${state.shareType}>
 				  <option value="binary-url">Binary URL</option>
-				  <option value="server">Server</option>
+				  <option value="airtable">Airtable</option>
 				</select>
 			</div>
 			<div class=${classMap(rendererClasses)}>

@@ -34,6 +34,7 @@ const STATE = {
 	url: undefined,
 	editorType: "html", // | js
 	rendererType: "iframe", // dom | shadow-dom
+	shareType: "binary-url",
 	examples: [],
 };
 
@@ -52,7 +53,7 @@ const STATE = {
 // `;
 
 // import(code1);
-let imported;
+// let imported;
 
 const ACTIONS = {
 	INIT(args, state) {
@@ -73,7 +74,7 @@ const ACTIONS = {
 				// how to inject includes into this scope?
 				const blob = URL.createObjectURL(new Blob([string], {type: 'text/javascript'}));
 				import(blob).then(res => {
-					imported = res;
+					// imported = res;
 					// console.log(imported);
 					// TODO: these are accumulating how can I clear them out?
 				});
@@ -110,11 +111,34 @@ const ACTIONS = {
 			setInnerHTML(main, string);
 		}
 	},
+	SHARE_TYPE({ type }, state) {
+		state.shareType = type;
+		dispatch("RENDER");
+	},
 	SHARE(args, state) {
 		const string = state.codemirror.view.state.doc.toString();
-		const encoded = lzutf8.compress(string, { outputEncoding: "StorageBinaryString" });
-		const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
-    copy(address);
+
+		if (state.shareType === "binary-url") {
+			const encoded = lzutf8.compress(string, { outputEncoding: "StorageBinaryString" });
+			const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
+	    copy(address);
+		}
+
+		if (state.shareType === "airtable") {
+			const url = 'https://airbridge.hackclub.com/v0.2/Saved%20Projects/Live%20Editor%20Projects/?authKey=reczbhVzrrkChMMiN1635964782lucs2mn97s';
+			(async () => {
+  			const res = await fetch(url, {
+			    method: "POST",
+			    headers: {'Content-Type': 'application/json'},
+			    body: JSON.stringify({
+			      "Content": string
+			    })
+			  }).then(r => r.json())
+
+  			copy(res.fields["Link"]);
+			})()
+		}
+
 	},
 	RENDERER_TYPE({ type }, state) {
 		state.rendererType = type;
@@ -131,7 +155,13 @@ const ACTIONS = {
 		state.codemirror.view.dispatch({
 			changes: { from: 0, insert: string }
 		});
-		// dispatch("RENDER");
+		dispatch("RUN");
+	},
+	LOAD_EXAMPLE({ content }, state) {
+		const string = state.codemirror.view.state.doc.toString();
+		state.codemirror.view.dispatch({
+			changes: { from: 0, to: string.length, insert: content }
+		});
 		dispatch("RUN");
 	},
 	RENDER() {
