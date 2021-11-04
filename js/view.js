@@ -8,6 +8,9 @@ function shareOptions(state) {
     <div class="expand-menu menu-option menu-choice">
       share
       <div class="menu-choices">
+      	<input type="text" .placeholder=${state.name} @keyup=${e => { 
+      		state.name = e.target.value === "" ? "anon" : e.target.value 
+      	}}></input>
         <button @click=${() => dispatch("SHARE", { type: "link" })}>link</button>
         <button @click=${() => dispatch("SHARE", { type: "file" })}>file</button>
       </div>
@@ -66,7 +69,7 @@ const renderOptions = (state) => {
 				</select>
 			</div>
 			<div class="option">
-				<span>Share Method:</span>
+				<span>Link Share Method:</span>
 				<select 
 					@change=${(e) => dispatch("SHARE_TYPE", { type: e.target.value})}
 					.value=${state.shareType}>

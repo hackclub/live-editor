@@ -34,8 +34,9 @@ const STATE = {
 	url: undefined,
 	editorType: "html", // | js
 	rendererType: "iframe", // dom | shadow-dom
-	shareType: "binary-url",
+	shareType: "airtable",
 	examples: [],
+	name: "name-here",
 };
 
 // const esm = ({ raw }, ...vals) => URL.createObjectURL(new Blob([String.raw({ raw }, ...vals)], {type: 'text/javascript'}));
@@ -140,7 +141,7 @@ const ACTIONS = {
 		}
 
 		if (type === "file") {
-			downloadText(`anon.${state.editorType}`,string);
+			downloadText(`${state.name}.${state.editorType}`,string);
 		}	
 
 	},
