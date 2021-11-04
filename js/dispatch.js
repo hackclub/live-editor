@@ -115,16 +115,16 @@ const ACTIONS = {
 		state.shareType = type;
 		dispatch("RENDER");
 	},
-	SHARE(args, state) {
+	SHARE({type}, state) {
 		const string = state.codemirror.view.state.doc.toString();
 
-		if (state.shareType === "binary-url") {
+		if (state.shareType === "binary-url" && type === "link") {
 			const encoded = lzutf8.compress(string, { outputEncoding: "StorageBinaryString" });
 			const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
 	    copy(address);
 		}
 
-		if (state.shareType === "airtable") {
+		if (state.shareType === "airtable" && type === "link") {
 			const url = 'https://airbridge.hackclub.com/v0.2/Saved%20Projects/Live%20Editor%20Projects/?authKey=reczbhVzrrkChMMiN1635964782lucs2mn97s';
 			(async () => {
   			const res = await fetch(url, {
@@ -138,6 +138,10 @@ const ACTIONS = {
   			copy(res.fields["Link"]);
 			})()
 		}
+
+		if (type === "file") {
+			downloadText(`anon.${state.editorType}`,string);
+		}	
 
 	},
 	RENDERER_TYPE({ type }, state) {
@@ -174,4 +178,14 @@ export function dispatch(action, args = {}) {
 	const trigger = ACTIONS[action];
 	if (trigger) trigger(args, STATE);
 	else console.log("Action not recongnized:", action);
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: "text/plain" });
+
+  var link = document.createElement("a"); // Or maybe get it from the current document
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}`;
+  link.click();
+  URL.revokeObjectURL(link);
 }

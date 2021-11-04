@@ -113,7 +113,6 @@ main {
 /* menu */
 
 .menu-choice {
-  /*width: 100%;*/
   display: grid;
   place-content: center;
   font: 400 13.3333px Arial;
@@ -125,39 +124,31 @@ main {
   border: rgb(118, 118, 118) 0.1px solid;
 }
 
-.menu-choice-trigger {
-  position: relative;
-}
-
-.menu-choices {
-  position: absolute;
-  z-index: 100;
-  bottom: 100%;
-  left: 50%;
-  transform: translate(-50%, 0);
-  visibility: hidden; /* hidden | visible */
-  width: 100%;
-  display: block;
-}
-
-.menu-choices .menu-choice {
-  width: 99%;
-  height: 28px;
-}
-
-.menu-choice-trigger:hover .menu-choices {
-  visibility: visible;
-}
-
 .menu-choice:hover {
   background: rgb(229 225 225);
   border: rgb(74, 74, 74) 1px solid;
   cursor: default;
 }
 
-.selected-menu-choice:hover,
-.selected-menu-choice {
-  border: 2px solid blue;
+.menu-choices {
+  position: absolute;
+  z-index: 10;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  visibility: hidden; /* hidden | visible */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.expand-menu {
+  position: relative;
+}
+
+.expand-menu:hover .menu-choices {
+  visibility: visible;
 }
 
 /* examples */

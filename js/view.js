@@ -3,21 +3,13 @@ import { classMap } from "lit-html-classMap";
 import "./codemirror/codemirror-html.js";
 import "./codemirror/codemirror-js.js";
 
-function options(shadowDom) {
+function shareOptions(state) {
   return html`
-    <div class="menu-option menu-choice menu-choice-trigger">
-      options
+    <div class="expand-menu menu-option menu-choice">
+      share
       <div class="menu-choices">
-        <button 
-        	class=${shadowDom ? "menu-choice" : "menu-choice selected-menu-choice"} 
-        	@click=${() => dispatch("CHANGE_RENDERER", {type: "iframe"})}>
-        	iframe
-        	</button>
-        <button 
-        	class=${shadowDom ? "menu-choice selected-menu-choice" : "menu-choice"} 
-        	@click=${() => dispatch("CHANGE_RENDERER", {type: "shadowDom"})}>
-        	shadowDom
-			</button>
+        <button @click=${() => dispatch("SHARE", { type: "link" })}>link</button>
+        <button @click=${() => dispatch("SHARE", { type: "file" })}>file</button>
       </div>
     </div>
   `
@@ -31,7 +23,7 @@ export function view(state) {
 			${state.editorType === "js" ? html`<codemirror-js id="code-editor"></codemirror-js>` : html`<codemirror-html id="code-editor"></codemirror-html>`}
 			<div class="menu">
 				<button class="menu-option" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
-				<button class="menu-option" @click=${() => dispatch("SHARE")}>share</button>
+				${shareOptions(state)}
 				<button class="menu-option" @click=${() => toggleHide("examples")}>examples</button>
 				<button class="menu-option" @click=${() => toggleHide("options")}>options</button>
 			</div>
