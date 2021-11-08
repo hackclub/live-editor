@@ -1,6 +1,6 @@
 import { events } from "./events.js";
 import { defaultProg } from "./defaultProg.js";
-import lzutf8 from "lzutf8";
+import lzutf8 from "https://cdn.skypack.dev/lzutf8";
 
 export function init(state) {
 

@@ -1,5 +1,5 @@
-import { html, render, svg } from 'lit-html';
-import lzutf8 from 'lzutf8';
+import { html, render, svg } from "https://unpkg.com/lit-html@2.0.1/lit-html.js";
+import lzutf8 from "https://cdn.skypack.dev/lzutf8";
 import { view } from "./view.js";
 import { init } from "./init.js";
 
