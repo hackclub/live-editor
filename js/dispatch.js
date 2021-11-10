@@ -132,7 +132,8 @@ const ACTIONS = {
 			    method: "POST",
 			    headers: {'Content-Type': 'application/json'},
 			    body: JSON.stringify({
-			      "Content": string
+			      "Content": string,
+			      "Name": state.name,
 			    })
 			  }).then(r => r.json())
 
