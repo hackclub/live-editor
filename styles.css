@@ -1,7 +1,7 @@
 :root {
   --vertical-bar: 60%;
-  --background: #d3d3d3;
-  --background-2: #868686;
+  --background: #dbdbdb;
+  --background-2: #eef4ff;
   --text-color: black;
 }
 
@@ -161,7 +161,7 @@ main {
   transform: translate(-50%, -50%);
   width: 70%;
   height: 80%;
-  background: var(--background-2);
+  background: var(--background);
   border: 2px solid black;
   padding: 15px;
   border-radius: 10px;
@@ -179,7 +179,7 @@ main {
   cursor: pointer;
   padding: 5px;
   margin: 5px;
-  background: var(--background);
+  background: var(--background-2);
 }
 
 
@@ -193,7 +193,7 @@ main {
   transform: translate(-50%, -50%);
   width: 300px;
   height: 80%;
-  background: var(--background-2);
+  background: var(--background);
   border: 2px solid black;
   padding: 15px;
   border-radius: 10px;
@@ -225,6 +225,19 @@ main {
 
 .close:hover {
   opacity: .7;
+}
+
+.shared-modal {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  color: var(--text-color);
+  background: var(--background-2);
+  padding: 10px;
+  border: 2px solid black;
+  border-radius: 5px;
+  /*transform: translate(-50%, 0%);*/
+  z-index: 100;
 }
 
 

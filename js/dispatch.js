@@ -29,6 +29,11 @@ function copy(str) {
 	inp.remove();
 }
 
+function showShared() {
+	document.querySelector(".shared-modal").classList.toggle("hide");
+  setTimeout(() => document.querySelector(".shared-modal").classList.toggle("hide"), 3000);
+}
+
 const STATE = {
 	codemirror: undefined,
 	url: undefined,
@@ -123,6 +128,7 @@ const ACTIONS = {
 			const encoded = lzutf8.compress(string, { outputEncoding: "StorageBinaryString" });
 			const address = `${window.location.origin}${window.location.pathname}?code=${encoded}`;
 	    copy(address);
+	    showShared();
 		}
 
 		if (state.shareType === "airtable" && type === "link") {
@@ -138,6 +144,7 @@ const ACTIONS = {
 			  }).then(r => r.json())
 
   			copy(res.fields["Link"]);
+  			showShared();
 			})()
 		}
 

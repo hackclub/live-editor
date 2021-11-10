@@ -38,8 +38,15 @@ export function view(state) {
 		<div id="vertical-bar"></div>
 		${renderExamples(state)}
 		${renderOptions(state)}
+		${renderShared(state)}
 	`
 }
+
+const renderShared = state => html`
+	<div class="shared-modal hide">
+		Sharing link copied to clip board.
+	</div>
+`
 
 const renderExamples = (state) => html`
 	<div class="examples hide">
