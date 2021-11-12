@@ -42,6 +42,11 @@ const STATE = {
 	shareType: "airtable",
 	examples: [],
 	name: "name-here",
+	lastSaved: {
+		name: "",
+		text: "",
+		link: "",
+	}
 };
 
 // const esm = ({ raw }, ...vals) => URL.createObjectURL(new Blob([String.raw({ raw }, ...vals)], {type: 'text/javascript'}));
@@ -132,6 +137,12 @@ const ACTIONS = {
 		}
 
 		if (state.shareType === "airtable" && type === "link") {
+			if (state.lastSaved.name === state.name && state.lastSaved.text === string) {
+				copy(state.lastSaved.link);
+  			showShared();
+				return;
+			}
+
 			const url = 'https://airbridge.hackclub.com/v0.2/Saved%20Projects/Live%20Editor%20Projects/?authKey=reczbhVzrrkChMMiN1635964782lucs2mn97s';
 			(async () => {
   			const res = await fetch(url, {
@@ -145,6 +156,9 @@ const ACTIONS = {
 
   			copy(res.fields["Link"]);
   			showShared();
+  			state.lastSaved.name = state.name;
+  			state.lastSaved.text = string;
+  			state.lastSaved.link = res.fields["Link"];
 			})()
 		}
 
