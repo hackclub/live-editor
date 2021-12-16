@@ -43,12 +43,29 @@ body {
   background: #f4e6d0;
   grid-template:
     "." 1fr
+    "." auto
     "." 30px
     / 100%;
 }
 
 #code-editor {
 	overflow: scroll;
+}
+
+.log {
+  background: green;
+  padding: 5px;
+  max-height: 100px;
+  overflow-y: scroll;
+}
+
+.error {
+  background: #ff0909b3;
+}
+
+.shrink {
+  height: 0px;
+  padding: 0px;
 }
 
 .menu {

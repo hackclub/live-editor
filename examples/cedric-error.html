@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      const src = `
+        <html>
+          <script>
+          window.onload = () => {
+            throw new Error("oh dear");
+          }
+          </script>
+        </html>
+      `
+
+      window.addEventListener("message", e => console.log('captured: ' + e.data));
+      window.onload = () => {
+        const srcdoc = document.implementation.createHTMLDocument("");
+        srcdoc.children[0].innerHTML = src;
+        for (const script of srcdoc.getElementsByTagName("script")) {
+          script.innerHTML = 
+            "window.onerror = e => window.parent.postMessage(e, '*');\n" +
+            script.innerHTML;
+        }
+​
+        document.getElementById("leoframe").srcdoc = srcdoc.children[0].innerHTML;
+      }
+    </script>
+  </head>
+​
+  <body>
+    <div id="names"></div>
+    <iframe id="leoframe"></iframe>
+  </body>
+</html>

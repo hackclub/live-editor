@@ -24,6 +24,9 @@ export function view(state) {
 	return html`
 		<div class="left-pane">
 			${state.editorType === "js" ? html`<codemirror-js id="code-editor"></codemirror-js>` : html`<codemirror-html id="code-editor"></codemirror-html>`}
+			<div class=${["log", state.error ? "error" : "", state.logs.length === 0 ? "shrink" : ""].join(" ")}>
+				${state.logs.map(x => html`<div>${JSON.stringify(x)}</div>`)}
+			</div>
 			<div class="menu">
 				<button class="menu-option" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
 				${shareOptions(state)}

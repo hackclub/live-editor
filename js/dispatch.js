@@ -34,6 +34,7 @@ function showShared() {
   setTimeout(() => document.querySelector(".shared-modal").classList.toggle("hide"), 3000);
 }
 
+
 const STATE = {
 	codemirror: undefined,
 	url: undefined,
@@ -41,6 +42,8 @@ const STATE = {
 	rendererType: "iframe", // dom | shadow-dom
 	shareType: "airtable",
 	examples: [],
+	error: false,
+	logs: [],
 	name: "name-here",
 	lastSaved: {
 		name: "",
@@ -48,6 +51,25 @@ const STATE = {
 		link: "",
 	}
 };
+
+// window.onerror = () => {
+// 	console.log("test")
+// }
+
+window.addEventListener("message", e => {
+	if (e.data === "error") STATE.error = true;
+	else {
+		STATE.logs = [...STATE.logs, ...e.data];
+	}
+	dispatch("RENDER");
+
+	const obj = document.querySelector(".log");
+
+	// if (obj.scrollTop - (obj.scrollHeight - obj.offsetHeight) > -20) {
+	// 		obj.scrollTop = obj.scrollHeight - obj.offsetHeight;
+	// }
+});
+
 
 // const esm = ({ raw }, ...vals) => URL.createObjectURL(new Blob([String.raw({ raw }, ...vals)], {type: 'text/javascript'}));
 
@@ -79,6 +101,8 @@ const ACTIONS = {
 		// 	setInnerHTML(shadowRoot, html);
 		// }
 
+
+
 		if (state.editorType === "js") {
 			const hasImport = /import\s/.test(string);
 			if (hasImport) {
@@ -104,11 +128,28 @@ const ACTIONS = {
 
 		if (state.editorType === "html" && state.rendererType === "iframe") { // iframe
 			const iframe = document.querySelector(".viewer");
-
-			var blob = new Blob([string], { type: 'text/html' });
+			const prog = `
+				<script>
+					window.onerror = e => {
+						window.parent.postMessage([e], '*');
+						window.parent.postMessage("error", '*');
+					}
+					const log = window.console.log;
+					window.console.log = (...args) => {
+						window.parent.postMessage(args, '*');
+						log(...args);
+					}
+				</script>
+				${string}
+			`
+			var blob = new Blob([prog], { type: 'text/html' });
 			URL.revokeObjectURL(state.url)
 			state.url = URL.createObjectURL(blob);
 			iframe.src = state.url;
+
+			STATE.error = false;
+			STATE.logs = [];
+			dispatch("RENDER");
 		}
 
 		if (state.editorType === "html" && state.rendererType === "shadow-dom") { // iframe
@@ -121,6 +162,8 @@ const ACTIONS = {
 			const main = document.querySelector("main");
 			setInnerHTML(main, string);
 		}
+
+	
 	},
 	SHARE_TYPE({ type }, state) {
 		state.shareType = type;
