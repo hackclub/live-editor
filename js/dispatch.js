@@ -142,7 +142,7 @@ const ACTIONS = {
 				</script>
 				${string}
 			`
-			var blob = new Blob([prog], { type: 'text/html' });
+			var blob = new Blob([string], { type: 'text/html' });
 			URL.revokeObjectURL(state.url)
 			state.url = URL.createObjectURL(blob);
 			iframe.src = state.url;
