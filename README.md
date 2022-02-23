@@ -1,11 +1,14 @@
-- make demo code tutorial
-- markdown annotations
-- "slide" making
-- last/next
-- add json files as tutorials
-- add last/next as url params
+# TODO
 
-## Done
-- add vertical bar location as url param
-- replace ftdomdelegate
-- add run and share button
+- [] add aws share links
+- [] fix run on load
+- [] clear url params
+- [] specify template in url param
+- [x] redo toolbar ui
+  - add icons
+- [x] add markdown pop-out
+- [] add save reload
+- [x] add share modal
+- [] add previous files
+- [] add versioning
+- [] add turtle arc

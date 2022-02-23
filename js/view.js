@@ -1,22 +1,72 @@
 import { html } from "https://unpkg.com/lit-html@2.0.1/lit-html.js";
 import "./codemirror/codemirror-js.js";
+import "./convert-md.js";
 
-function shareOptions(state) {
-  return html`
-    <div class="expand-menu menu-option menu-choice">
-      share
-      <div class="menu-choices">
-      	<input type="text" .placeholder=${state.name} @keyup=${e => { 
+const fileName = state => html`
+	<input
+		class="menu-option" 
+		style="flex: 2; margin-right: 5px;"
+		type="text" 
+		.placeholder=${state.name} 
+		@keyup=${e => { 
       		state.name = e.target.value === "" ? "anon" : e.target.value 
-      	}}></input>
-        <button @click=${() => dispatch("SHARE", { type: "link" })}>link</button>
-        <button @click=${() => dispatch("DOWNLOAD")}>file</button>
-      </div>
-    </div>
-  `
-}
+    }}>
+  </input>
+`
 
-const toggleHide = (className) => document.querySelector(`.${className}`).classList.toggle("hide");
+const renderDocs = state => html`
+	<style>
+		.docs {
+      position: absolute;
+      box-sizing: border-box;
+      height: 100%;
+      width: 60%;
+      right: 0px;
+      top: 0px;
+      background: white;
+      z-index: 20;
+      padding: 10px;
+      overflow: scroll;
+      transition: right 1s ease-in-out;
+    }
+
+    .hide-docs {
+      right: -60%;
+    }
+
+    .close-docs {
+      position: fixed;
+      right: 10px;
+      top: 10px;
+    }
+
+    .hide-docs .close-docs {
+      display: none;
+    }
+	</style>
+	<div class="docs hide-docs">
+		<button class="close-docs" @click=${() => dispatch("DOCS")}>close</button>
+		<h3>Notifications:</h3>
+		<div class="notification-container">
+      ${Object.values(state.notifications).map(
+        (x) => html` <div class="shared-modal">${x}</div> `
+      )}
+    </div>
+    <h3>Documentation:</h3>
+    <convert-md src=${state.documentation}>
+    	<style>
+	    	pre,
+	    	code {
+	      	background: lightgrey;
+		      border-radius: 3px;
+		      padding: 5px;
+		      overflow: scroll;
+		      line-height: 1.5em;
+		    }
+    	</style>
+    </convert-md>
+	</div>
+`
 
 export function view(state) {
 	return html`
@@ -26,36 +76,30 @@ export function view(state) {
 				${state.logs.map(x => html`<div>${JSON.stringify(x)}</div>`)}
 			</div>
 			<div class="menu">
-				<button class="menu-option" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
-				${shareOptions(state)}
-				<button class="menu-option" @click=${() => toggleHide("examples")}>examples</button>
+				${fileName(state)}
+				<button class="menu-option menu-button" @click=${() => dispatch("SHARE")}>
+					share
+					<span class="tooltip">get a sharing link</span>
+				</button>
+        <button class="menu-option menu-button" @click=${() => dispatch("DOWNLOAD")}>
+					download
+					<span class="tooltip">dowload file</span>
+				</button>
+				<button class="menu-option menu-button" @click=${() => dispatch("DOCS")}>
+					docs
+					<span class="tooltip">show documentation</span>
+				</button>
+				<button class="menu-option menu-button" @click=${() => dispatch("RUN")}>
+					run
+					<span class="tooltip">run program (shift+enter)</span>
+				</button>
 			</div>
 		</div>
-		<iframe class="iframe-sandbox" sandbox="allow-scripts allow-same-origin"></iframe>
+		<div class="right-pane">
+			<iframe class="iframe-sandbox" sandbox="allow-scripts allow-same-origin"></iframe>
+		</div>
 		<div id="vertical-bar"></div>
-		${renderExamples(state)}
-		${renderShared(state)}
+		${renderDocs(state)}
 	`
 }
-
-const renderShared = state => html`
-	<div class="shared-modal hide">
-		Sharing link copied to clip board.
-	</div>
-`
-
-const renderExamples = (state) => html`
-	<div class="examples hide">
-		${state.examples.map((x, i) => html`
-			<span 
-				class="example" 
-				@click=${() => dispatch("LOAD_EXAMPLE", { content: x["Content"] })}>
-				${x["Name"]}
-			</span>
-		`)}
-		<button class="close" @click=${() => toggleHide("examples")}>close</button>
-	</div>
-`
-
-
 

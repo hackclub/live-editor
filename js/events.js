@@ -63,6 +63,7 @@ function addVerticalBarDrag(state, bodyListener) {
 	})
 
 	bodyListener("mousemove", "", (e) => {
+
 		if (!moveVerticalBar) return;
 
 		let x = e.clientX/window.innerWidth * 100;
@@ -171,12 +172,6 @@ export function events(state) {
 		  dispatch("RUN");
 		}
 	});
-
-	// bodyListener("mousedown", "", (e) => {
-	// 	if (!e.target.matches(".examples > *, .examples")) {
- //        dispatch("EXAMPLES", { show: false });
- //    }
-	// })
 
 	addVerticalBarDrag(state, bodyListener);
 	addNumberDragging(state, bodyListener);

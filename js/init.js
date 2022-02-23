@@ -17,7 +17,7 @@ export function init(state) {
 
 	const sandbox = document.querySelector(".iframe-sandbox");
 
-	const templateAddress = "http://localhost:8080/templates/turtle-template.js";
+	const templateAddress = state.template;
 
 	const string = `
 		<style>
@@ -27,17 +27,6 @@ export function init(state) {
 		</style>
 		<script type="module">
 			import evalUserCode from "${templateAddress}";
-
-			// window.onerror = e => {
-			// 	window.parent.postMessage([e], '*');
-			// 	window.parent.postMessage("error", '*');
-			// }
-
-			// const log = window.console.log;
-			// window.console.log = (...args) => {
-			// 	window.parent.postMessage(args, '*');
-			// 	log(...args);
-			// }
 
 			window.onmessage = function(e) {
         const { data } = e;

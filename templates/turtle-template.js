@@ -59,12 +59,14 @@ class Turtle {
       this._ctx.lineTo(x, y);
       this._ctx.stroke();
 
+      const radius = this._size/2;
+
       this._ctx.beginPath();
-      this._ctx.arc(this._location.x, this._location.y, this._size/2, 0, Math.PI * 2, true);
+      this._ctx.arc(this._location.x, this._location.y, radius, 0, Math.PI * 2, true);
       this._ctx.fill();
       
       this._ctx.beginPath();
-      this._ctx.arc(x, y, this._size/2, 0, Math.PI * 2, true);
+      this._ctx.arc(x, y, radius, 0, Math.PI * 2, true);
       this._ctx.fill();
     }
 

@@ -19,8 +19,17 @@ function showShared() {
 
 const STATE = {
 	codemirror: undefined,
-	url: undefined,
+	template: `${window.location.href}templates/turtle-template.js`,
+	documentation: `${window.location.href}templates/turtle-template.md`,
 	examples: [],
+	notifications: [
+		html`test notification`, 
+		html`test notification 2`,
+		html`test notification 2`,
+		html`test notification 2`,
+		html`test notification 2`,
+		html`test notification 2`
+	],
 	error: false,
 	logs: [],
 	name: "name-here",
@@ -32,15 +41,13 @@ const STATE = {
 };
 
 window.addEventListener("message", e => {
-	console.log("message", e);
+	const location = e.data.stack.match(/<anonymous>:(.+)\)/)[1];
+	let [ line, col ] = location.split(":").map(Number);
+	line = line - 2;
 
-	// if (e.data === "error") STATE.error = true;
-	// else {
-	// 	STATE.logs = [...STATE.logs, ...e.data];
-	// }
-	// dispatch("RENDER");
-
-	// const obj = document.querySelector(".log");
+	STATE.error = true;
+	STATE.logs = [...STATE.logs, `${e.data.message} on line ${line} in column ${col}`];
+	dispatch("RENDER");
 });
 
 
@@ -70,6 +77,15 @@ const ACTIONS = {
 		const string = state.codemirror.view.state.doc.toString();
 		downloadText(`${state.name}.html`,string);
 	},
+	DOCS(args, state) {
+		const docs = document.querySelector(".docs");
+  	docs.classList.toggle("hide-docs");
+	},
+	NOTIFICATION({ message }, state) {
+		state.notifications = [message, ...state.notifications];
+
+    dispatch("RENDER");
+  },
 	LOAD_PROGRAM({ content }, state) {
 		const string = state.codemirror.view.state.doc.toString();
 		state.codemirror.view.dispatch({
