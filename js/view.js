@@ -1,7 +1,5 @@
 import { html } from "https://unpkg.com/lit-html@2.0.1/lit-html.js";
-import { classMap } from "https://unpkg.com/lit-html@2.0.1/directives/class-map.js";
 import "./codemirror/codemirror-html.js";
-import "./codemirror/codemirror-js.js";
 
 function shareOptions(state) {
   return html`
@@ -23,7 +21,7 @@ const toggleHide = (className) => document.querySelector(`.${className}`).classL
 export function view(state) {
 	return html`
 		<div class="left-pane">
-			${state.editorType === "js" ? html`<codemirror-js id="code-editor"></codemirror-js>` : html`<codemirror-html id="code-editor"></codemirror-html>`}
+			<codemirror-html id="code-editor"></codemirror-html>
 			<div class=${["log", state.error ? "error" : "", state.logs.length === 0 ? "shrink" : ""].join(" ")}>
 				${state.logs.map(x => html`<div>${JSON.stringify(x)}</div>`)}
 			</div>
@@ -31,16 +29,11 @@ export function view(state) {
 				<button class="menu-option" @click=${() => dispatch("RUN")}>run (shift + enter)</button>
 				${shareOptions(state)}
 				<button class="menu-option" @click=${() => toggleHide("examples")}>examples</button>
-				<button class="menu-option" @click=${() => toggleHide("options")}>options</button>
 			</div>
 		</div>
-		${state.editorType === "html" && state.rendererType === "iframe" 
-				? html`<iframe class="viewer viewer-iframe"></iframe>`
-				: html`<main></main>`
-		}
+		<iframe class="viewer viewer-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
 		<div id="vertical-bar"></div>
 		${renderExamples(state)}
-		${renderOptions(state)}
 		${renderShared(state)}
 	`
 }
@@ -63,45 +56,6 @@ const renderExamples = (state) => html`
 		<button class="close" @click=${() => toggleHide("examples")}>close</button>
 	</div>
 `
-
-const renderOptions = (state) => { 
-	const rendererClasses = { option: true, hide: state.editorType !== "html" };
-
-	return html`
-		<div class="options hide">
-			<div class="option">
-				<span>Editor Type:</span>
-				<select 
-					@change=${(e) => dispatch("EDITOR_TYPE", { type: e.target.value})}
-					.value=${state.editorType}>
-					<option value="html">HTML</option>
-				  <option value="js">JavaScript</option>
-				</select>
-			</div>
-			<div class="option">
-				<span>Link Share Method:</span>
-				<select 
-					@change=${(e) => dispatch("SHARE_TYPE", { type: e.target.value})}
-					.value=${state.shareType}>
-				  <option value="binary-url">Binary URL</option>
-				  <option value="airtable">Airtable</option>
-				</select>
-			</div>
-			<div class=${classMap(rendererClasses)}>
-				<span>Renderer:</span>
-				<select 
-					@change=${(e) => dispatch("RENDERER_TYPE", { type: e.target.value })}
-					.value=${state.rendererType}>
-				  <option value="iframe">iframe</option>
-				  <option value="dom">DOM</option>
-				  <option value="shadow-dom">Shadow DOM</option>
-				</select>
-			</div>
-			<h1>THIS IS A WORK IN PROGRESS NOT ALL OPTIONS WORK YET</h1>
-			<button class="close" @click=${() => toggleHide("options")}>close</button>
-		</div>
-	`
-}
 
 
 
