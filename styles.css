@@ -77,18 +77,11 @@ body {
 }
 
 .menu-option {
-  width: calc(100%/3);
+  flex: 1;
 }
 
-main {
-  all: initial;
-  overflow: scroll;
-  /*font-family: auto;*/
-  /*font-size: initial;*/
-  /*margin: default;*/
-}
 
-.viewer-iframe {
+.iframe-sandbox {
   width: 100%;
   height: 100%;
   border: none;
@@ -116,11 +109,11 @@ main {
 	z-index: 0;
 }
 
-.ͼc, .ͼy {
+.ͼb {
   border: solid 1px rgb(0, 0, 0, 0);
 }
 
-.ͼc:hover, .ͼy:hover {
+.ͼb:hover {
   background: #e4e0e0;
   border: solid 1px grey;
   box-sizing: border-box;

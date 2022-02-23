@@ -32,15 +32,15 @@ const STATE = {
 };
 
 window.addEventListener("message", e => {
-	console.log("message", e.data);
+	console.log("message", e);
 
-	if (e.data === "error") STATE.error = true;
-	else {
-		STATE.logs = [...STATE.logs, ...e.data];
-	}
-	dispatch("RENDER");
+	// if (e.data === "error") STATE.error = true;
+	// else {
+	// 	STATE.logs = [...STATE.logs, ...e.data];
+	// }
+	// dispatch("RENDER");
 
-	const obj = document.querySelector(".log");
+	// const obj = document.querySelector(".log");
 });
 
 
@@ -49,30 +49,14 @@ const ACTIONS = {
 		init(state);
 	},
 	RUN(args, state) {
-		const string = state.codemirror.view.state.doc.toString();
-	
-		const iframe = document.querySelector(".viewer");
-		const prog = `
-			<script>
-				window.onerror = e => {
-					window.parent.postMessage([e], '*');
-					window.parent.postMessage("error", '*');
-				}
-				const log = window.console.log;
-				window.console.log = (...args) => {
-					window.parent.postMessage(args, '*');
-					log(...args);
-				}
-			</script>
-			${string}
-		`
-		var blob = new Blob([string], { type: 'text/html' });
-		URL.revokeObjectURL(state.url)
-		state.url = URL.createObjectURL(blob);
-		iframe.src = state.url;
-
 		STATE.error = false;
 		STATE.logs = [];
+
+		const program = state.codemirror.view.state.doc.toString();
+
+		const sandbox = document.querySelector(".iframe-sandbox");
+		sandbox.contentWindow.postMessage({ program }, '*');
+
 		dispatch("RENDER");
 
 	},
@@ -84,7 +68,7 @@ const ACTIONS = {
 	},
 	DOWNLOAD(args, state) {
 		const string = state.codemirror.view.state.doc.toString();
-		downloadText(`${state.name}.${state.editorType}`,string);
+		downloadText(`${state.name}.html`,string);
 	},
 	LOAD_PROGRAM({ content }, state) {
 		const string = state.codemirror.view.state.doc.toString();

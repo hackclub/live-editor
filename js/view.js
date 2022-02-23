@@ -1,5 +1,5 @@
 import { html } from "https://unpkg.com/lit-html@2.0.1/lit-html.js";
-import "./codemirror/codemirror-html.js";
+import "./codemirror/codemirror-js.js";
 
 function shareOptions(state) {
   return html`
@@ -10,7 +10,7 @@ function shareOptions(state) {
       		state.name = e.target.value === "" ? "anon" : e.target.value 
       	}}></input>
         <button @click=${() => dispatch("SHARE", { type: "link" })}>link</button>
-        <button @click=${() => dispatch("SHARE", { type: "file" })}>file</button>
+        <button @click=${() => dispatch("DOWNLOAD")}>file</button>
       </div>
     </div>
   `
@@ -21,7 +21,7 @@ const toggleHide = (className) => document.querySelector(`.${className}`).classL
 export function view(state) {
 	return html`
 		<div class="left-pane">
-			<codemirror-html id="code-editor"></codemirror-html>
+			<codemirror-js id="code-editor"></codemirror-js>
 			<div class=${["log", state.error ? "error" : "", state.logs.length === 0 ? "shrink" : ""].join(" ")}>
 				${state.logs.map(x => html`<div>${JSON.stringify(x)}</div>`)}
 			</div>
@@ -31,7 +31,7 @@ export function view(state) {
 				<button class="menu-option" @click=${() => toggleHide("examples")}>examples</button>
 			</div>
 		</div>
-		<iframe class="viewer viewer-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+		<iframe class="iframe-sandbox" sandbox="allow-scripts allow-same-origin"></iframe>
 		<div id="vertical-bar"></div>
 		${renderExamples(state)}
 		${renderShared(state)}

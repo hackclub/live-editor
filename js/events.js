@@ -94,7 +94,7 @@ function addNumberDragging(state, bodyListener) {
 	let dragged = false;
 	let num, pos_start, pos_end, sigFigs, usePrecision, selectedText;
 
-	bodyListener("mousedown", ".ͼc, .ͼy", e => {
+	bodyListener("mousedown", ".ͼb", e => {
 		const s = state.codemirror.view.state;
 		const doc = s.doc;
 		const pos = s.selection.main.head;

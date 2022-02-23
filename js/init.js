@@ -14,6 +14,48 @@ export function init(state) {
 
 	dispatch("RENDER");
 	state.codemirror = document.querySelector("#code-editor");
+
+	const sandbox = document.querySelector(".iframe-sandbox");
+
+	const templateAddress = "http://localhost:8080/templates/turtle-template.js";
+
+	const string = `
+		<style>
+			body {
+				margin: 0px;
+			}
+		</style>
+		<script type="module">
+			import evalUserCode from "${templateAddress}";
+
+			// window.onerror = e => {
+			// 	window.parent.postMessage([e], '*');
+			// 	window.parent.postMessage("error", '*');
+			// }
+
+			// const log = window.console.log;
+			// window.console.log = (...args) => {
+			// 	window.parent.postMessage(args, '*');
+			// 	log(...args);
+			// }
+
+			window.onmessage = function(e) {
+        const { data } = e;
+        const { program } = data;
+
+        try {
+        	evalUserCode(program);
+        } catch (err) {
+        	e.source.postMessage(err, e.origin);
+        }
+      };
+		</script>
+		<body></body>
+	`
+
+	const blob = new Blob([string], { type: 'text/html' });
+	sandbox.src = URL.createObjectURL(blob);
+
 	events(state);
 
 	if (file) {
