@@ -1,3 +1,5 @@
+import { dispatch } from "./dispatch.js";
+
 const trigger = e => e.composedPath()[0];
 const matchesTrigger = (e, selectorString) => trigger(e).matches(selectorString);
 // create on listener
@@ -36,7 +38,7 @@ function readFile(file) {
   reader.onloadend = event => {
     let text = reader.result;
 
-    console.log(text);
+    dispatch("SET_SAVE_STATE", { stateString: text });
   };
 }
 
@@ -163,8 +165,7 @@ export function events(state) {
 	bodyListener("keydown", "", function(event) {
 		let code = event.code;
 
-		const prog = state.codemirror.view.state.doc.toString();
-    window.localStorage.setItem("cm-prog", prog);
+    window.localStorage.setItem("cm-prog", dispatch("GET_SAVE_STATE"));
     
 		// console.log(code, event);
 		if (code === "Enter" && event.shiftKey) {

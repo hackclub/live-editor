@@ -1,6 +1,8 @@
 import { html } from "https://unpkg.com/lit-html@2.0.1/lit-html.js";
 import "./codemirror/codemirror-js.js";
 import "./convert-md.js";
+import { dispatch } from "./dispatch.js";
+
 
 const fileName = state => html`
 	<input

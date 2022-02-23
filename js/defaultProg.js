@@ -1,28 +1,19 @@
 export const defaultProg = `
-<script type="module">
-  // javascript goes here
-</script>
+const w = 509;
+const h = 579;
 
-<style>
-  /* css go here */
+setCanvasSize(w, h);
+fillScreen("white");
 
-  body {
-    margin: 0px;
-  }
+const t = createTurtle(w/2, h/2);
 
-  .hello {
-    display: grid;
-    place-content: center;
-    background: coral;
-    height: 100vh;
-    width: 100vw;
-  }
-</style>
+t.setSize(3);
 
-<main>
-  <!-- html goes here -->
-  <div class="hello">Hello there!</div>
-</main>
+for (let i = 0; i < 430; i += 1) {
+  t.setColor(\`hsl(\${0.5*i}, \${101}%, \${59}%)\`)
+  t.forward(i);
+  t.right(87);
+}
 
 
 
