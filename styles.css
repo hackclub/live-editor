@@ -40,7 +40,7 @@ body {
 .left-pane {
   display: grid;
   overflow: hidden;
-  background: #f4e6d0;
+  background: #fffbf5;
   grid-template:
     "." 1fr
     "." auto
