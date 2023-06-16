@@ -10,6 +10,7 @@ export function init(state) {
 	const code = new URLSearchParams(search).get("code");
 	const file = new URLSearchParams(search).get("file");
 	const vert = new URLSearchParams(search).get("vert");
+	const run = new URLSearchParams(search).get("run");
 	const rendererType = new URLSearchParams(search).get("rendererType");
 	const editorType = new URLSearchParams(search).get("editorType");
 	const shareType = new URLSearchParams(search).get("shareType");
@@ -29,7 +30,7 @@ export function init(state) {
 		  changes: {from: 0, insert: decoded}
 		});
 
-		dispatch("RUN");
+		if (run !== "false") dispatch("RUN");
 	} else if (file) {
 	    let file_url = file;
 
@@ -43,7 +44,7 @@ export function init(state) {
 	        .json()
 	        .then( json => {
 	        	state.codemirror.view.dispatch({ changes: {from: 0, insert: json[0].fields["Content"]} });
-				dispatch("RUN");
+						if (run !== "false") dispatch("RUN");
 	        }))
 
 
@@ -55,7 +56,7 @@ export function init(state) {
 				.text()
 				.then( txt => {
 				    state.codemirror.view.dispatch({ changes: {from: 0, insert: txt} });
-				    dispatch("RUN");
+				    if (run !== "false") dispatch("RUN");
 				}));
 		}
 	} else { 
@@ -64,7 +65,7 @@ export function init(state) {
 			changes: { from: 0, insert: !saved ? defaultProg.trim() : saved }
 		});
 
-		dispatch("RUN");
+		if (run !== "false") dispatch("RUN");
 	}
 
 	(async () => {
